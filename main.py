@@ -1,15 +1,15 @@
-
 """
 Main Execution Script: Neuropixels BCI Control Pipeline.
-Author: [Your Name]
+Author: [Diego Narvaez]
 Description: This script orchestrates data ingestion from AWS, spike sorting, 
 and control-loop validation for biological computing research.
 """
 
+import os
+import numpy as np
 from src.analyzer import NeuroAnalyzer
 from src.decoder import get_paddle_history, calculate_metrics
-import numpy as np
-import matplotlib.pyplot as plt
+from src.visualizer import plot_neural_validation, plot_performance_analysis
 
 # AWS S3 Path to Allen Institute Neuropixels Dataset
 S3_PATH = 'aind-benchmark-data/ephys-compression/aind-np1/625749_2022-08-03_15-15-06_ProbeA/traces_cached_seg0.raw'
@@ -17,8 +17,11 @@ S3_PATH = 'aind-benchmark-data/ephys-compression/aind-np1/625749_2022-08-03_15-1
 def main():
     print("--- Starting Neuropixels BCI Pipeline ---")
     
+    # 0. Ensure results directory exists for automation
+    if not os.path.exists('results'):
+        os.makedirs('results')
+    
     # 1. Initialize Neural Processing Pipeline
-    # We use a 30kHz sampling frequency as per Neuropixels 1.0 standards
     brain = NeuroAnalyzer(fs=30000)
     
     # 2. Data Acquisition (5 seconds of activity from Channel 10)
@@ -33,15 +36,12 @@ def main():
     # 4. Spike Sorting (Clustering neurons)
     print("Classifying neural units via PCA + K-Means...")
     brain.sort_spikes(n_clusters=4)
-    print(f"Detected {len(brain.spike_indices)} spikes. Units isolated: 4")
     
     # 5. Control-Loop Simulation
-    print("Generating simulated Pong ball trajectory...")
     fps = 30
     seconds = 5
     time_axis = np.linspace(0, seconds, seconds * fps)
-    # Simulated stimulus (Target Ball)
-    ball_y = 30 * np.sin(2 * np.pi * 0.5 * time_axis)
+    ball_y = 30 * np.sin(2 * np.pi * 0.5 * time_axis) # Target Stimulus
     
     print("Decoding neural activity into paddle movement...")
     paddle_history = get_paddle_history(brain.spike_indices, brain.clusters, seconds=5)
@@ -49,10 +49,12 @@ def main():
     # 6. Performance Validation
     correlation, latency = calculate_metrics(ball_y, paddle_history)
     
-    print("\n--- FINAL REPORT ---")
-    print(f"System Accuracy (Correlation): {correlation*100:.2f}%")
-    print(f"System Latency: {latency:.2f} ms")
-    print("-------------------------------------")
+    # 7. Visualization & Report Generation (Using our new module)
+    print("Generating engineering reports...")
+    plot_neural_validation(brain)
+    plot_performance_analysis(time_axis, ball_y, paddle_history, correlation, latency)
+    
+    print(f"\n--- SUCCESS: Accuracy {correlation*100:.2f}% | Latency {latency:.2f} ms ---")
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,6 @@
 # Neuropixels BCI Pipeline: Open-Loop Control Analysis
 
-This project focuses on the development of a signal processing infrastructure for Brain-Computer Interfaces (BCI) using high-density recordings from Neuropixels probes. The system integrates cloud-based data acquisition, digital signal processing, and neural pattern decoding to control a dynamic system.
+This project focuses on the development of a signal processing infrastructure for Brain-Computer Interfaces (BCI) using high-density recordings from Neuropixels probes from Allen Institute for Neural Dynamics - Extracellular Electrophysiology Compression Benchmark was accessed from https://registry.opendata.aws/allen-nd-ephys-compression. The system integrates cloud-based data acquisition, digital signal processing, and neural pattern decoding to control a dynamic system.
 
 ## Technical Overview
 The pipeline is designed to process extracellular signals at a sampling frequency of 30 kHz. The architecture enables the identification of individual neural units and the translation of their firing rates into spatial movement commands, allowing for the quantitative evaluation of the relationship between external stimuli and decoded biological responses.
